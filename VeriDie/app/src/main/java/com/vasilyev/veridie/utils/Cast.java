@@ -7,12 +7,10 @@ import android.text.TextUtils;
 import com.vasilyev.veridie.R;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Cast
 {
-    public static final Set<String> DICE_TYPES = new HashSet<>(Arrays.asList(
+    public static final String[] DICE_TYPES = new String[]{
             "D2",
             "D4",
             "D6",
@@ -22,7 +20,7 @@ public class Cast
             "D16",
             "D20",
             "D100"
-    ));
+    };
 
     public static class Request
     {
@@ -32,8 +30,10 @@ public class Cast
 
         public Request(String diceType, int count, int successFrom, Context ctx) throws IllegalArgumentException
         {
-            if (!DICE_TYPES.contains(diceType))
+            if (!Arrays.asList(DICE_TYPES).contains(diceType))
                 throw new IllegalArgumentException(ctx.getString(R.string.ex_invalid_dice_type));
+            if (count < 1 || count > 70)
+                throw new IllegalArgumentException(ctx.getString(R.string.ex_invalid_count));
             if (successFrom > Integer.parseInt(diceType.substring(1)))
                 throw new IllegalArgumentException(ctx.getString(R.string.ex_invalid_threshold));
             m_d = diceType;
@@ -76,11 +76,8 @@ public class Cast
         private final int m_successCount;
         private final int[] m_values;
 
-        public Result(String diceType, String values, int successCount, Context ctx) throws IllegalArgumentException
+        public Result(String diceType, String values, int successCount) throws IllegalArgumentException
         {
-            if (!DICE_TYPES.contains(diceType))
-                throw new IllegalArgumentException(ctx.getString(R.string.ex_invalid_dice_type));
-
             m_d = diceType;
             m_successCount = successCount;
 

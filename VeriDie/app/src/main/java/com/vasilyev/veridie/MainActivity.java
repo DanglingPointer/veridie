@@ -23,6 +23,7 @@ import com.vasilyev.veridie.fragments.ConnectingFragment;
 import com.vasilyev.veridie.fragments.IdleFragment;
 import com.vasilyev.veridie.fragments.NegotiationFragment;
 import com.vasilyev.veridie.fragments.PlayingFragment;
+import com.vasilyev.veridie.fragments.RequestDialogFragment;
 import com.vasilyev.veridie.interop.Bridge;
 import com.vasilyev.veridie.interop.Command;
 import com.vasilyev.veridie.interop.CommandHandler;
@@ -37,7 +38,8 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements BluetoothService.Callbacks,
         IdleFragment.Callbacks,
         ConnectingFragment.Callbacks,
-        PlayingFragment.Callbacks
+        PlayingFragment.Callbacks,
+        RequestDialogFragment.Callbacks
 {
     static {
         System.loadLibrary("veridie");
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
     private static final String TAG = "MainActivity";
     private static final String SAVED_FRAGMENT = "MainActivity.SAVED_FRAGMENT";
     private static final int REQUEST_LOCATION_ACCESS = 10;
+    private static final String TAG_REQUEST_DIALOG = "TAG_REQUEST_DIALOG";
 
     private final ServiceConnection m_bluetoothConnection = new ServiceConnection()
     {
@@ -222,37 +225,27 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
     private void showRequest(Command cmd)
     {
         Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
-        try {
-            String d = cmd.getArgs()[0];
-            int size = Integer.parseInt(cmd.getArgs()[1]);
-            int threshold = Integer.parseInt(cmd.getArgs()[2]);
-            String from = cmd.getArgs()[3];
-            Cast.Request r = new Cast.Request(d, size, threshold, this);
+        String d = cmd.getArgs()[0];
+        int size = Integer.parseInt(cmd.getArgs()[1]);
+        int threshold = Integer.parseInt(cmd.getArgs()[2]);
+        String from = cmd.getArgs()[3];
+        Cast.Request r = new Cast.Request(d, size, threshold, this);
 
-            ((PlayingFragment)current).addRequest(from, r);
-            cmd.respond(Command.ERROR_NO_ERROR);
-        } catch (Exception e) {
-            e.printStackTrace();
-            cmd.respond(Command.ERROR_INVALID_STATE);
-        }
+        ((PlayingFragment)current).addRequest(from, r);
+        cmd.respond(Command.ERROR_NO_ERROR);
     }
 
     private void showResponse(Command cmd)
     {
         Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
-        try {
-            String values = cmd.getArgs()[0];
-            String d = cmd.getArgs()[1];
-            int successCount = Integer.parseInt(cmd.getArgs()[2]);
-            String from = cmd.getArgs()[3];
-            Cast.Result r = new Cast.Result(d, values, successCount, this);
+        String values = cmd.getArgs()[0];
+        String d = cmd.getArgs()[1];
+        int successCount = Integer.parseInt(cmd.getArgs()[2]);
+        String from = cmd.getArgs()[3];
+        Cast.Result r = new Cast.Result(d, values, successCount);
 
-            ((PlayingFragment)current).addResult(from, r);
-            cmd.respond(Command.ERROR_NO_ERROR);
-        } catch (Exception e) {
-            e.printStackTrace();
-            cmd.respond(Command.ERROR_INVALID_STATE);
-        }
+        ((PlayingFragment)current).addResult(from, r);
+        cmd.respond(Command.ERROR_NO_ERROR);
     }
 
     private void resetGame(Command cmd)
@@ -343,12 +336,26 @@ public class MainActivity extends AppCompatActivity implements BluetoothService.
     @Override
     public void onCastRequestPressed()
     {
-        Bridge.send(Event.CAST_REQUEST_ISSUED.withArgs("D6", "5", "3")); // temp
+        RequestDialogFragment f = RequestDialogFragment.newInstance();
+        f.show(getFragmentManager(), TAG_REQUEST_DIALOG);
     }
 
     @Override
     public void onDetailedViewPressed(CastItem cast)
     {
 
+    }
+
+    // ---------------RequestDialogFragment-callbacks-----------------------------------------------
+
+    @Override
+    public void onRequestSubmitted(Cast.Request request)
+    {
+        String type = request.getD();
+        String count = Integer.toString(request.getCount());
+        if (request.getSuccessFrom() != null)
+            Bridge.send(Event.CAST_REQUEST_ISSUED.withArgs(type, count, Integer.toString(request.getSuccessFrom())));
+        else
+            Bridge.send(Event.CAST_REQUEST_ISSUED.withArgs(type, count));
     }
 }

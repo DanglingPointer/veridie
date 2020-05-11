@@ -14,6 +14,7 @@
     <string name="dialog_exit_prompt">Do you want to exit?</string>
     <string name="dialog_notification_title">Notification</string>
     <string name="ex_invalid_dice_type">Invalid dice type!</string>
+    <string name="ex_invalid_count">Request size must be between 1 and 70</string>
     <string name="ex_invalid_threshold">Invalid threshold for success!</string>
     <string name="play_btn_request">Make a cast</string>
     <string name="play_request_w_threshold">%s throws %d %s with success on %d+</string>
@@ -21,4 +22,9 @@
     <string name="play_result_w_count">%d %s were cast with %d successes:</string>
     <string name="play_result_wo_count">%d %s were cast:</string>
     <string name="play_txt_generator">Current result generator: %s</string>
+    <string name="request_dice_type">Select dice type:</string>
+    <string name="request_dice_num">Enter number of dices:</string>
+    <string name="request_threshold">Success from:</string>
+    <string name="request_submit">Submit</string>
+    <string name="request_title">Request cast</string>
 </resources>

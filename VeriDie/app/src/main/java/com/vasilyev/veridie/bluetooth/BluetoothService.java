@@ -197,8 +197,10 @@ public class BluetoothService extends Service
             Bridge.setBtCmdHandler(null);
             if (m_acceptorThread != null)
                 m_acceptorThread.interrupt();
-            m_connectionMgr.quitSafely();
-            m_thread.quitSafely();
+            if (m_connectionMgr != null)
+                m_connectionMgr.quitSafely();
+            if (m_thread != null)
+                m_thread.quitSafely();
         });
         super.onDestroy();
     }

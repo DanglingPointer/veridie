@@ -190,7 +190,7 @@ class CastItemAdapter extends RecyclerView.Adapter<CastItemAdapter.ViewHolder>
                         from, request.getCount(), request.getD());
             m_description.setText(txt);
             m_content.setText(null);
-            m_content.setHeight(0);
+            m_content.setVisibility(View.GONE);
         }
         void bindToResult(String from, Cast.Result result)
         {
@@ -208,6 +208,7 @@ class CastItemAdapter extends RecyclerView.Adapter<CastItemAdapter.ViewHolder>
             for (int i = 1; i < result.getValues().length; ++i)
                 sb.append(", ").append(result.getValues()[i]);
             m_content.setText(sb.toString());
+            m_content.setVisibility(View.VISIBLE);
         }
         void setOnClickListener(View.OnClickListener listener)
         {
